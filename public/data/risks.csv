@@ -1,0 +1,16 @@
+id,name,category,likelihood,impact,score,priority,owner,threat
+R1,Financial Theft,Financial,5,4,20,Critical,CFO Office,Deepfake
+R2,Executive Spoofing,Identity,4,4,16,High,CISO,Deepfake
+R3,AI Phishing,Identity,3,3,9,High,SOC Team,Phishing
+R4,Data Exfiltration,Data,3,3,9,Medium,DPO,Data
+R5,Infra Disruption,Infrastructure,2,4,8,Medium,IT Ops,Infrastructure
+R6,Credential Harvest,Identity,3,2,6,Low,IAM Team,Phishing
+R7,Ransomeware Attack,Infrastructure,5,5,25,Critical,SOC Team,Malware
+R8,Insider Threat,Identity,4,3,12,High,HR Security,Access Abuse
+R9,API Data Leakage ,Data,4,3,12,High,Backend Team,Data
+R10,Cloud Misconfiguration,Infrastructure,3,4,12,High,Cloud Ops,Infrastructure
+R11,Supply Chain,Financial,4,5,20,Critical,Procurement,Third Party
+R12,Model Poisoning,AI,3,4,12,High,AI Team,AI Attack
+R13,Prompt Injection,AI,3,3,9,Medium,AI Team,AI Attack
+R14,Session Hijacking,Identity,3,4,12,High,Security Team,Web Attack
+R15,Zero-Day Exploit,Infrastructure,5,5,25,Critical,SOC Team,Vulnerability

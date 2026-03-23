@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 import KpiCard from "./components/KpiCard";
@@ -8,9 +8,9 @@ import RiskRanking from "./components/RiskRanking";
 import CategoryDistribution from "./components/CategoryDistribution";
 import RiskTable from "./components/RiskTable";
 import TreatmentFramework from "./components/TreatmentFramework";
+import Papa from "papaparse";
 
 import {
-  risks,
   DGREY,
   RED,
   ORANGE,
@@ -21,9 +21,37 @@ import {
 } from "./data/dashboardData";
 
 export default function Dashboard() {
+  const [riskData, setRiskData] = useState([]);
   const [priority, setPriority] = useState("All");
   const [category, setCategory] = useState("All");
   const [threat, setThreat] = useState("All");
+
+  useEffect(() => {
+    Papa.parse("/data/risks.csv", {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        console.log("CSV raw result:", result);
+        console.log("CSV data:", result.data);
+
+        const formatted = result.data
+          .filter((row) => row.id && row.name)
+          .map((row) => ({
+            ...row,
+            likelihood: Number(row.likelihood) || 0,
+            impact: Number(row.impact) || 0,
+            score: Number(row.score) || 0,
+          }));
+
+        console.log("Formatted risk data:", formatted);
+        setRiskData(formatted);
+      },
+      error: (error) => {
+        console.error("CSV load error:", error);
+      },
+    });
+  }, []);
 
   const selectStyle = {
     fontSize: 8.5,
@@ -41,7 +69,7 @@ export default function Dashboard() {
     backgroundPosition: "right 5px center",
   };
 
-  const filteredRisks = risks.filter((risk) => {
+  const filteredRisks = riskData.filter((risk) => {
     const matchesPriority = priority === "All" || risk.priority === priority;
     const matchesCategory = category === "All" || risk.category === category;
     const matchesThreat = threat === "All" || risk.threat === threat;
@@ -67,6 +95,29 @@ export default function Dashboard() {
         filteredRisks[0],
       )
     : null;
+
+  const categoryOptions = [
+    "All",
+    ...Array.from(new Set(riskData.map((risk) => risk.category))).sort(),
+  ];
+
+  const priorityOptions = [
+    "All",
+    ...Array.from(new Set(riskData.map((risk) => risk.priority))).sort(),
+  ];
+
+  const threatOptions = [
+    "All",
+    ...Array.from(new Set(riskData.map((risk) => risk.threat))).sort(),
+  ];
+
+  if (!riskData.length) {
+    return (
+      <div style={{ padding: 20, fontFamily: "Segoe UI, sans-serif" }}>
+        Loading risk data...
+      </div>
+    );
+  }
 
   return (
     <div
@@ -133,19 +184,19 @@ export default function Dashboard() {
               label: "CATEGORY",
               value: category,
               setter: setCategory,
-              opts: ["All", "Financial", "Identity", "Infrastructure", "Data"],
+              opts: categoryOptions,
             },
             {
               label: "PRIORITY",
               value: priority,
               setter: setPriority,
-              opts: ["All", "Critical", "High", "Medium", "Low"],
+              opts: priorityOptions,
             },
             {
               label: "THREAT",
               value: threat,
               setter: setThreat,
-              opts: ["All", "Deepfake", "Phishing", "Data", "Infrastructure"],
+              opts: threatOptions,
             },
           ].map((f) => (
             <div
@@ -205,8 +256,8 @@ export default function Dashboard() {
       </div>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-        <RiskMatrix />
-        <Top3Risks />
+        <RiskMatrix risks={filteredRisks} />
+        <Top3Risks risks={filteredRisks} />
       </div>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>

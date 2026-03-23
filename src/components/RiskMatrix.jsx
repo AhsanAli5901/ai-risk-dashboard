@@ -1,12 +1,42 @@
-import { WHITE, MGREY, DGREY, GREY, RED, ORANGE, matrixRisks } from "../data/dashboardData";
+import { WHITE, MGREY, DGREY, GREY, RED, ORANGE } from "../data/dashboardData";
 
-export default function RiskMatrix() {
+export default function RiskMatrix({ risks }) {
   const zoneColors = [
     ["#FDFEFE", "#FEF9F0", "#FEF0EE"],
     ["#FEF9F0", "#FEF0EE", "#FBECEB"],
     ["#FEF0EE", "#FBECEB", "#F9E4E3"],
   ];
 
+  const topMatrixRisks = [...risks]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((risk) => ({
+      ...risk,
+      color: risk.priority === "Critical" ? RED : ORANGE,
+    }));
+
+  if (!risks.length) {
+    return (
+      <div
+        style={{
+          background: WHITE,
+          border: `1px solid ${MGREY}`,
+          borderRadius: 6,
+          padding: 16,
+          flex: 1.1,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div style={{ fontSize: 10, fontWeight: 700, color: DGREY }}>
+          RISK CRITICALITY MATRIX
+        </div>
+        <div style={{ marginTop: 12, fontSize: 9, color: GREY }}>
+          No risks available for current filters.
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div
       style={{
@@ -18,9 +48,18 @@ export default function RiskMatrix() {
         boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
       }}
     >
-      <div style={{ fontSize: 10, fontWeight: 700, color: DGREY, letterSpacing: 0.5, marginBottom: 2 }}>
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 700,
+          color: DGREY,
+          letterSpacing: 0.5,
+          marginBottom: 2,
+        }}
+      >
         RISK CRITICALITY MATRIX
       </div>
+
       <div style={{ fontSize: 8.5, color: GREY, marginBottom: 10 }}>
         Probability vs Impact
       </div>
@@ -70,11 +109,11 @@ export default function RiskMatrix() {
                       position: "relative",
                     }}
                   />
-                ))
+                )),
               )}
             </div>
 
-            {matrixRisks.map((r) => {
+            {topMatrixRisks.map((r) => {
               const x = ((r.impact - 1) / 4) * 100;
               const y = ((5 - r.likelihood) / 4) * 100;
 
@@ -108,9 +147,18 @@ export default function RiskMatrix() {
             })}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-around", marginTop: 4 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              marginTop: 4,
+            }}
+          >
             {["Low", "Medium", "High"].map((l) => (
-              <div key={l} style={{ fontSize: 7.5, color: GREY, textAlign: "center" }}>
+              <div
+                key={l}
+                style={{ fontSize: 7.5, color: GREY, textAlign: "center" }}
+              >
                 {l}
               </div>
             ))}
@@ -131,24 +179,30 @@ export default function RiskMatrix() {
         </div>
       </div>
 
-      <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4 }}>
-        {[
-          ["R1", "Financial Theft", RED],
-          ["R2", "Exec Spoofing", ORANGE],
-          ["R3", "AI Phishing", ORANGE],
-        ].map(([id, name, col]) => (
-          <div key={id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <div
+        style={{
+          marginTop: 10,
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+        }}
+      >
+        {topMatrixRisks.map((r) => (
+          <div
+            key={r.id}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
             <div
               style={{
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
-                background: col,
+                background: r.color,
                 flexShrink: 0,
               }}
             />
             <span style={{ fontSize: 8, color: DGREY }}>
-              <b>{id}</b> — {name}
+              <b>{r.id}</b> — {r.name}
             </span>
           </div>
         ))}

@@ -1,4 +1,11 @@
-import { WHITE, MGREY, LGREY, DGREY, GREY, priorityColor } from "../data/dashboardData";
+import {
+  WHITE,
+  MGREY,
+  LGREY,
+  DGREY,
+  GREY,
+  priorityColor,
+} from "../data/dashboardData";
 
 export default function RiskTable({ risks }) {
   return (
@@ -25,10 +32,21 @@ export default function RiskTable({ risks }) {
         RISK REGISTER — SUMMARY VIEW
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 8.5 }}>
+      <table
+        style={{ width: "100%", borderCollapse: "collapse", fontSize: 8.5 }}
+      >
         <thead>
           <tr style={{ background: DGREY }}>
-            {["ID", "Risk Name", "Category", "Likelihood", "Impact", "Score", "Priority", "Owner"].map((h) => (
+            {[
+              "ID",
+              "Risk Name",
+              "Category",
+              "Likelihood",
+              "Impact",
+              "Score",
+              "Priority",
+              "Owner",
+            ].map((h) => (
               <th
                 key={h}
                 style={{
@@ -48,12 +66,33 @@ export default function RiskTable({ risks }) {
 
         <tbody>
           {risks.map((r, i) => (
-            <tr key={r.id} style={{ background: i % 2 === 0 ? LGREY : WHITE }}>
-              <td style={{ padding: "5px 8px", fontWeight: 700, color: DGREY }}>{r.id}</td>
+            <tr
+              key={`${r.id}-${i}`}
+              style={{ background: i % 2 === 0 ? LGREY : WHITE }}
+            >
+              <td style={{ padding: "5px 8px", fontWeight: 700, color: DGREY }}>
+                {r.id}
+              </td>
               <td style={{ padding: "5px 8px", color: DGREY }}>{r.name}</td>
               <td style={{ padding: "5px 8px", color: GREY }}>{r.category}</td>
-              <td style={{ padding: "5px 8px", color: DGREY, textAlign: "center" }}>{r.likelihood}</td>
-              <td style={{ padding: "5px 8px", color: DGREY, textAlign: "center" }}>{r.impact}</td>
+              <td
+                style={{
+                  padding: "5px 8px",
+                  color: DGREY,
+                  textAlign: "center",
+                }}
+              >
+                {r.likelihood}
+              </td>
+              <td
+                style={{
+                  padding: "5px 8px",
+                  color: DGREY,
+                  textAlign: "center",
+                }}
+              >
+                {r.impact}
+              </td>
               <td
                 style={{
                   padding: "5px 8px",

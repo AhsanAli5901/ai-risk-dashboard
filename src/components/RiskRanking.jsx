@@ -1,4 +1,10 @@
-import { WHITE, MGREY, LGREY, DGREY, priorityColor } from "../data/dashboardData";
+import {
+  WHITE,
+  MGREY,
+  LGREY,
+  DGREY,
+  priorityColor,
+} from "../data/dashboardData";
 
 export default function RiskRanking({ risks }) {
   return (
@@ -27,8 +33,11 @@ export default function RiskRanking({ risks }) {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-        {risks.map((r) => (
-          <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {risks.map((r, index) => (
+          <div
+            key={`${r.id}-${index}`}
+            style={{ display: "flex", alignItems: "center", gap: 10 }}
+          >
             <div
               style={{
                 width: 90,
@@ -58,7 +67,7 @@ export default function RiskRanking({ risks }) {
                   left: 0,
                   top: 0,
                   bottom: 0,
-                  width: `${(r.score / 12) * 100}%`,
+                  width: `${(r.score / 25) * 100}%`,
                   background: priorityColor[r.priority],
                   borderRadius: 3,
                   transition: "width 0.6s ease",
