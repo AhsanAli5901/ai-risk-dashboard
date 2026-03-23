@@ -1,18 +1,28 @@
-export const RED = "#C0392B";
-export const ORANGE = "#E67E22";
-export const GREY = "#7F8C8D";
-export const DGREY = "#2C3E50";
-export const LGREY = "#ECF0F1";
-export const MGREY = "#BDC3C7";
-export const WHITE = "#FFFFFF";
-export const BGPAGE = "#F4F6F7";
+export const RED = "#E15656";
+export const ORANGE = "#F59E0B";
+export const AMBER = "#FBBF24";
+export const GREEN = "#10B981";
 
+export const DGREY = "#0F172A";
+export const DGREY_2 = "#1E293B";
+export const GREY = "#64748B";
+export const MGREY = "#CBD5E1";
+export const LGREY = "#E2E8F0";
+export const WHITE = "#FFFFFF";
+
+export const BGPAGE = "#F8FAFC";
+export const CARD_BG = "#FFFFFF";
+export const HEADER_BG = "#0F172A";
+export const HEADER_TAG = "#1E293B";
+export const BORDER = "#E2E8F0";
+export const TEXT_MAIN = "#0F172A";
+export const TEXT_MUTED = "#64748B";
 
 export const priorityColor = {
   Critical: RED,
   High: ORANGE,
-  Medium: GREY,
-  Low: MGREY,
+  Medium: AMBER,
+  Low: GREEN,
 };
 
 export const treatments = [
@@ -38,7 +48,7 @@ export const treatments = [
   },
   {
     type: "CURATIVE",
-    color: GREY,
+    color: GREEN,
     items: [
       "Incident response playbooks",
       "Forensic audit trail system",

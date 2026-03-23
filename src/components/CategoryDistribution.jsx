@@ -1,4 +1,4 @@
-import { WHITE, MGREY, LGREY, DGREY, RED, ORANGE, GREY } from "../data/dashboardData";
+import { WHITE, DGREY, RED, ORANGE, GREY, MGREY } from "../data/dashboardData";
 
 export default function CategoryDistribution({ risks }) {
   const categoryMap = {};
@@ -22,29 +22,29 @@ export default function CategoryDistribution({ risks }) {
             ? GREY
             : name === "Data"
               ? MGREY
-              : "#CBD0D1",
+              : "#94A3B8",
   }));
 
   return (
     <div
       style={{
         background: WHITE,
-        border: `1px solid ${MGREY}`,
-        borderRadius: 6,
-        padding: 16,
+        border: "1px solid #E2E8F0",
+        borderRadius: 16,
+        padding: 20,
         flex: 1,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
       }}
     >
       <div
         style={{
-          fontSize: 10,
-          fontWeight: 700,
-          color: DGREY,
-          letterSpacing: 0.5,
-          marginBottom: 8,
-          paddingBottom: 8,
-          borderBottom: `1px solid ${LGREY}`,
+          fontSize: 11,
+          fontWeight: 800,
+          color: "#0F172A",
+          letterSpacing: 0.6,
+          marginBottom: 10,
+          paddingBottom: 10,
+          borderBottom: "1px solid #E2E8F0",
         }}
       >
         CATEGORY DISTRIBUTION
@@ -53,17 +53,28 @@ export default function CategoryDistribution({ risks }) {
       <div
         style={{
           display: "flex",
-          height: 14,
-          borderRadius: 3,
+          height: 16,
+          borderRadius: 999,
           overflow: "hidden",
-          marginBottom: 12,
+          marginBottom: 14,
+          background: "#F1F5F9",
         }}
       >
         {categoryList.map((cat) => (
           <div
             key={cat.name}
-            style={{ flex: cat.pct, background: cat.color }}
+            style={{
+              flex: cat.pct,
+              background: cat.color,
+              transition: "all 0.2s ease",
+            }}
             title={`${cat.name}: ${cat.pct}%`}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "0.8";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "1";
+            }}
           />
         ))}
       </div>
@@ -72,24 +83,27 @@ export default function CategoryDistribution({ risks }) {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: "6px 8px",
+          gap: "8px 10px",
         }}
       >
         {categoryList.map((cat) => (
-          <div key={cat.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            key={cat.name}
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
+          >
             <div
               style={{
-                width: 9,
-                height: 9,
-                borderRadius: 2,
+                width: 10,
+                height: 10,
+                borderRadius: 3,
                 background: cat.color,
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 8, color: DGREY, flex: 1 }}>
+            <span style={{ fontSize: 9, color: DGREY, flex: 1 }}>
               {cat.name} ({cat.count})
             </span>
-            <span style={{ fontSize: 8, fontWeight: 700, color: cat.color }}>
+            <span style={{ fontSize: 9, fontWeight: 700, color: cat.color }}>
               {cat.pct}%
             </span>
           </div>

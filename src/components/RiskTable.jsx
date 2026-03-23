@@ -1,42 +1,33 @@
-import {
-  WHITE,
-  MGREY,
-  LGREY,
-  DGREY,
-  GREY,
-  priorityColor,
-} from "../data/dashboardData";
+import { WHITE, DGREY, GREY, priorityColor } from "../data/dashboardData";
 
 export default function RiskTable({ risks }) {
   return (
     <div
       style={{
         background: WHITE,
-        border: `1px solid ${MGREY}`,
-        borderRadius: 6,
-        padding: 16,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        border: "1px solid #E2E8F0",
+        borderRadius: 16,
+        padding: 20,
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
       }}
     >
       <div
         style={{
-          fontSize: 10,
-          fontWeight: 700,
-          color: DGREY,
-          letterSpacing: 0.5,
-          marginBottom: 8,
-          paddingBottom: 8,
-          borderBottom: `1px solid ${LGREY}`,
+          fontSize: 11,
+          fontWeight: 800,
+          color: "#0F172A",
+          letterSpacing: 0.6,
+          marginBottom: 10,
+          paddingBottom: 10,
+          borderBottom: "1px solid #E2E8F0",
         }}
       >
         RISK REGISTER — SUMMARY VIEW
       </div>
 
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", fontSize: 8.5 }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9 }}>
         <thead>
-          <tr style={{ background: DGREY }}>
+          <tr style={{ background: "#F1F5F9" }}>
             {[
               "ID",
               "Risk Name",
@@ -50,12 +41,12 @@ export default function RiskTable({ risks }) {
               <th
                 key={h}
                 style={{
-                  padding: "5px 8px",
+                  padding: "8px 10px",
                   textAlign: "left",
-                  color: WHITE,
+                  color: "#334155",
                   fontWeight: 700,
-                  letterSpacing: 0.4,
-                  fontSize: 8,
+                  letterSpacing: 0.3,
+                  fontSize: 8.5,
                 }}
               >
                 {h}
@@ -68,16 +59,28 @@ export default function RiskTable({ risks }) {
           {risks.map((r, i) => (
             <tr
               key={`${r.id}-${i}`}
-              style={{ background: i % 2 === 0 ? LGREY : WHITE }}
+              style={{
+                background: i % 2 === 0 ? "#FFFFFF" : "#F8FAFC",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#EEF2FF";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background =
+                  i % 2 === 0 ? "#FFFFFF" : "#F8FAFC";
+              }}
             >
-              <td style={{ padding: "5px 8px", fontWeight: 700, color: DGREY }}>
+              <td
+                style={{ padding: "8px 10px", fontWeight: 700, color: DGREY }}
+              >
                 {r.id}
               </td>
-              <td style={{ padding: "5px 8px", color: DGREY }}>{r.name}</td>
-              <td style={{ padding: "5px 8px", color: GREY }}>{r.category}</td>
+              <td style={{ padding: "8px 10px", color: DGREY }}>{r.name}</td>
+              <td style={{ padding: "8px 10px", color: GREY }}>{r.category}</td>
               <td
                 style={{
-                  padding: "5px 8px",
+                  padding: "8px 10px",
                   color: DGREY,
                   textAlign: "center",
                 }}
@@ -86,7 +89,7 @@ export default function RiskTable({ risks }) {
               </td>
               <td
                 style={{
-                  padding: "5px 8px",
+                  padding: "8px 10px",
                   color: DGREY,
                   textAlign: "center",
                 }}
@@ -95,7 +98,7 @@ export default function RiskTable({ risks }) {
               </td>
               <td
                 style={{
-                  padding: "5px 8px",
+                  padding: "8px 10px",
                   fontWeight: 700,
                   color: priorityColor[r.priority],
                   textAlign: "center",
@@ -103,21 +106,21 @@ export default function RiskTable({ risks }) {
               >
                 {r.score}
               </td>
-              <td style={{ padding: "5px 8px" }}>
+              <td style={{ padding: "8px 10px" }}>
                 <span
                   style={{
                     background: priorityColor[r.priority],
                     color: WHITE,
-                    borderRadius: 10,
-                    padding: "2px 8px",
-                    fontSize: 7.5,
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    fontSize: 8,
                     fontWeight: 700,
                   }}
                 >
                   {r.priority}
                 </span>
               </td>
-              <td style={{ padding: "5px 8px", color: GREY }}>{r.owner}</td>
+              <td style={{ padding: "8px 10px", color: GREY }}>{r.owner}</td>
             </tr>
           ))}
         </tbody>

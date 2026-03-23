@@ -1,12 +1,4 @@
-import {
-  WHITE,
-  MGREY,
-  LGREY,
-  DGREY,
-  GREY,
-  RED,
-  ORANGE,
-} from "../data/dashboardData";
+import { WHITE, DGREY, GREY, RED, ORANGE } from "../data/dashboardData";
 
 export default function Top3Risks({ risks }) {
   const top3 = [...risks]
@@ -24,14 +16,14 @@ export default function Top3Risks({ risks }) {
       <div
         style={{
           background: WHITE,
-          border: `1px solid ${MGREY}`,
-          borderRadius: 6,
-          padding: 16,
+          border: "1px solid #E2E8F0",
+          borderRadius: 16,
+          padding: 20,
           flex: 1,
-          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
         }}
       >
-        <div style={{ fontSize: 10, fontWeight: 700, color: DGREY }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#0F172A" }}>
           TOP 3 RISKS BY SCORE
         </div>
         <div style={{ marginTop: 12, fontSize: 9, color: GREY }}>
@@ -45,45 +37,56 @@ export default function Top3Risks({ risks }) {
     <div
       style={{
         background: WHITE,
-        border: `1px solid ${MGREY}`,
-        borderRadius: 6,
-        padding: 16,
+        border: "1px solid #E2E8F0",
+        borderRadius: 16,
+        padding: 20,
         flex: 1,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
       }}
     >
       <div
         style={{
-          fontSize: 10,
-          fontWeight: 700,
-          color: DGREY,
-          letterSpacing: 0.5,
-          marginBottom: 8,
-          paddingBottom: 8,
-          borderBottom: `1px solid ${LGREY}`,
+          fontSize: 11,
+          fontWeight: 800,
+          color: "#0F172A",
+          letterSpacing: 0.6,
+          marginBottom: 10,
+          paddingBottom: 10,
+          borderBottom: "1px solid #E2E8F0",
         }}
       >
         TOP 3 RISKS BY SCORE
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {top3.map((r) => (
           <div
-            key={r.id}
+            key={`${r.id}-${r.num}`}
             style={{
-              background: LGREY,
-              borderRadius: 4,
-              padding: "10px 12px",
+              background: "#F8FAFC",
+              borderRadius: 14,
+              border: "1px solid #E2E8F0",
+              padding: "12px 14px",
               display: "flex",
               alignItems: "center",
               gap: 12,
+              transition: "all 0.2s ease",
+              cursor: "pointer"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.02)";
+              e.currentTarget.style.background = "#EEF2FF";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.background = "#F8FAFC";
             }}
           >
             <div
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 4,
+                width: 30,
+                height: 30,
+                borderRadius: 8,
                 background: r.color,
                 display: "flex",
                 alignItems: "center",
@@ -100,7 +103,7 @@ export default function Top3Risks({ risks }) {
               <div style={{ fontSize: 10, fontWeight: 700, color: DGREY }}>
                 {r.name}
               </div>
-              <div style={{ fontSize: 8, color: GREY, marginTop: 2 }}>
+              <div style={{ fontSize: 8.5, color: GREY, marginTop: 3 }}>
                 {r.desc}
               </div>
             </div>
@@ -108,8 +111,8 @@ export default function Top3Risks({ risks }) {
             <div
               style={{
                 background: r.color,
-                borderRadius: 12,
-                padding: "3px 10px",
+                borderRadius: 999,
+                padding: "5px 12px",
                 flexShrink: 0,
               }}
             >

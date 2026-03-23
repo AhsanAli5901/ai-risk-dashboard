@@ -1,10 +1,10 @@
-import { WHITE, MGREY, DGREY, GREY, RED, ORANGE } from "../data/dashboardData";
+import { WHITE, DGREY, GREY, RED, ORANGE } from "../data/dashboardData";
 
 export default function RiskMatrix({ risks }) {
   const zoneColors = [
-    ["#FDFEFE", "#FEF9F0", "#FEF0EE"],
-    ["#FEF9F0", "#FEF0EE", "#FBECEB"],
-    ["#FEF0EE", "#FBECEB", "#F9E4E3"],
+    ["#F8FAFC", "#FFF7ED", "#FEF2F2"],
+    ["#FFF7ED", "#FEF3C7", "#FEE2E2"],
+    ["#FEF2F2", "#FDE68A", "#FECACA"],
   ];
 
   const topMatrixRisks = [...risks]
@@ -20,14 +20,14 @@ export default function RiskMatrix({ risks }) {
       <div
         style={{
           background: WHITE,
-          border: `1px solid ${MGREY}`,
-          borderRadius: 6,
-          padding: 16,
+          border: "1px solid #E2E8F0",
+          borderRadius: 16,
+          padding: 20,
           flex: 1.1,
-          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
         }}
       >
-        <div style={{ fontSize: 10, fontWeight: 700, color: DGREY }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#0F172A" }}>
           RISK CRITICALITY MATRIX
         </div>
         <div style={{ marginTop: 12, fontSize: 9, color: GREY }}>
@@ -36,47 +36,49 @@ export default function RiskMatrix({ risks }) {
       </div>
     );
   }
-  
+
   return (
     <div
       style={{
         background: WHITE,
-        border: `1px solid ${MGREY}`,
-        borderRadius: 6,
-        padding: 16,
+        border: "1px solid #E2E8F0",
+        borderRadius: 16,
+        padding: 20,
         flex: 1.1,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
       }}
     >
       <div
         style={{
-          fontSize: 10,
-          fontWeight: 700,
-          color: DGREY,
-          letterSpacing: 0.5,
-          marginBottom: 2,
+          fontSize: 11,
+          fontWeight: 800,
+          color: "#0F172A",
+          letterSpacing: 0.6,
+          marginBottom: 10,
+          paddingBottom: 10,
+          borderBottom: "1px solid #E2E8F0",
         }}
       >
         RISK CRITICALITY MATRIX
       </div>
 
-      <div style={{ fontSize: 8.5, color: GREY, marginBottom: 10 }}>
+      <div style={{ fontSize: 9, color: GREY, marginBottom: 12 }}>
         Probability vs Impact
       </div>
 
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 10 }}>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            width: 16,
+            width: 18,
           }}
         >
           <div
             style={{
-              fontSize: 7,
+              fontSize: 8,
               fontWeight: 700,
               color: GREY,
               writingMode: "vertical-rl",
@@ -95,8 +97,10 @@ export default function RiskMatrix({ risks }) {
                 display: "grid",
                 gridTemplateColumns: "repeat(3,1fr)",
                 gridTemplateRows: "repeat(3,1fr)",
-                height: 150,
-                border: `1px solid ${MGREY}`,
+                height: 170,
+                border: "1px solid #E2E8F0",
+                borderRadius: 12,
+                overflow: "hidden",
               }}
             >
               {[2, 1, 0].map((row) =>
@@ -105,8 +109,7 @@ export default function RiskMatrix({ risks }) {
                     key={`${row}-${col}`}
                     style={{
                       background: zoneColors[row][col],
-                      border: `0.5px solid ${MGREY}`,
-                      position: "relative",
+                      border: "0.5px solid #E2E8F0",
                     }}
                   />
                 )),
@@ -125,20 +128,29 @@ export default function RiskMatrix({ risks }) {
                     left: `${x}%`,
                     top: `${y}%`,
                     transform: "translate(-50%,-50%)",
-                    width: 26,
-                    height: 26,
+                    width: 30,
+                    height: 30,
                     borderRadius: "50%",
                     background: r.color,
                     border: "2px solid white",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 7,
+                    fontSize: 8,
                     fontWeight: 800,
                     color: WHITE,
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.16)",
                     zIndex: 2,
-                    cursor: "default",
+                    transition: "all 0.2s ease",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform =
+                      "translate(-50%, -50%) scale(1.2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform =
+                      "translate(-50%, -50%) scale(1)";
                   }}
                 >
                   {r.id}
@@ -151,13 +163,13 @@ export default function RiskMatrix({ risks }) {
             style={{
               display: "flex",
               justifyContent: "space-around",
-              marginTop: 4,
+              marginTop: 8,
             }}
           >
             {["Low", "Medium", "High"].map((l) => (
               <div
                 key={l}
-                style={{ fontSize: 7.5, color: GREY, textAlign: "center" }}
+                style={{ fontSize: 8.5, color: GREY, textAlign: "center" }}
               >
                 {l}
               </div>
@@ -166,12 +178,12 @@ export default function RiskMatrix({ risks }) {
 
           <div
             style={{
-              fontSize: 7.5,
+              fontSize: 8.5,
               color: GREY,
               textAlign: "center",
               letterSpacing: 1,
               fontWeight: 700,
-              marginTop: 2,
+              marginTop: 4,
             }}
           >
             IMPACT
@@ -181,16 +193,16 @@ export default function RiskMatrix({ risks }) {
 
       <div
         style={{
-          marginTop: 10,
+          marginTop: 14,
           display: "flex",
           flexDirection: "column",
-          gap: 4,
+          gap: 6,
         }}
       >
         {topMatrixRisks.map((r) => (
           <div
             key={r.id}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
           >
             <div
               style={{
@@ -201,7 +213,7 @@ export default function RiskMatrix({ risks }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 8, color: DGREY }}>
+            <span style={{ fontSize: 9, color: DGREY }}>
               <b>{r.id}</b> — {r.name}
             </span>
           </div>

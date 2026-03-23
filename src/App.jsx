@@ -8,6 +8,7 @@ import RiskRanking from "./components/RiskRanking";
 import CategoryDistribution from "./components/CategoryDistribution";
 import RiskTable from "./components/RiskTable";
 import TreatmentFramework from "./components/TreatmentFramework";
+import SelectedRiskPanel from "./components/SelectedRiskPanel";
 import Papa from "papaparse";
 
 import {
@@ -18,55 +19,74 @@ import {
   BGPAGE,
   MGREY,
   GREY,
+  HEADER_BG,
+  HEADER_TAG,
 } from "./data/dashboardData";
 
 export default function Dashboard() {
   const [riskData, setRiskData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
   const [priority, setPriority] = useState("All");
   const [category, setCategory] = useState("All");
   const [threat, setThreat] = useState("All");
 
+  const [selectedRisk, setSelectedRisk] = useState(null);
+
   useEffect(() => {
-    Papa.parse("/data/risks.csv", {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        console.log("CSV raw result:", result);
-        console.log("CSV data:", result.data);
+  Papa.parse("/data/risks.csv", {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: (result) => {
+      const formatted = result.data
+        .filter((row) => row.ID && row.Name)
+        .map((row) => ({
+          id: row.ID,
+          name: row.Name,
+          category: row.Category,
+          likelihood: Number(row.Likelihood) || 0,
+          impact: Number(row.Impact) || 0,
+          score: Number(row.Score) || 0,
+          priority: row.Priority,
+          owner: row.Owner,
+          threat: row.Threat,
+        }));
 
-        const formatted = result.data
-          .filter((row) => row.id && row.name)
-          .map((row) => ({
-            ...row,
-            likelihood: Number(row.likelihood) || 0,
-            impact: Number(row.impact) || 0,
-            score: Number(row.score) || 0,
-          }));
+      setRiskData(formatted);
+      setIsLoading(false);
 
-        console.log("Formatted risk data:", formatted);
-        setRiskData(formatted);
-      },
-      error: (error) => {
-        console.error("CSV load error:", error);
-      },
-    });
-  }, []);
+      if (formatted.length) {
+        setSelectedRisk(formatted[0]);
+      } else {
+        setLoadError("CSV loaded, but no valid rows were found.");
+      }
+    },
+    error: (error) => {
+      console.error("CSV load error:", error);
+      setLoadError("Failed to load CSV data.");
+      setIsLoading(false);
+    },
+  });
+}, []);
 
   const selectStyle = {
-    fontSize: 8.5,
-    border: `1px solid #5D6D7E`,
-    borderRadius: 3,
-    padding: "3px 20px 3px 6px",
-    background: WHITE,
-    color: DGREY,
+    fontSize: 9,
+    border: "1px solid rgba(148, 163, 184, 0.35)",
+    borderRadius: 10,
+    padding: "8px 32px 8px 12px",
+    minWidth: 145,
+    background: "rgba(255,255,255,0.08)",
+    color: WHITE,
     cursor: "pointer",
     outline: "none",
     fontFamily: "inherit",
     appearance: "none",
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%237F8C8D' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E")`,
+    backdropFilter: "blur(6px)",
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23E2E8F0' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E")`,
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 5px center",
+    backgroundPosition: "right 10px center",
   };
 
   const filteredRisks = riskData.filter((risk) => {
@@ -101,9 +121,12 @@ export default function Dashboard() {
     ...Array.from(new Set(riskData.map((risk) => risk.category))).sort(),
   ];
 
+  const priorityOrder = ["Critical", "High", "Medium", "Low"];
   const priorityOptions = [
     "All",
-    ...Array.from(new Set(riskData.map((risk) => risk.priority))).sort(),
+    ...priorityOrder.filter((p) =>
+      riskData.some((risk) => risk.priority === p),
+    ),
   ];
 
   const threatOptions = [
@@ -111,10 +134,24 @@ export default function Dashboard() {
     ...Array.from(new Set(riskData.map((risk) => risk.threat))).sort(),
   ];
 
-  if (!riskData.length) {
+  if (isLoading) {
     return (
       <div style={{ padding: 20, fontFamily: "Segoe UI, sans-serif" }}>
         Loading risk data...
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div
+        style={{
+          padding: 20,
+          fontFamily: "Segoe UI, sans-serif",
+          color: "crimson",
+        }}
+      >
+        {loadError}
       </div>
     );
   }
@@ -125,52 +162,53 @@ export default function Dashboard() {
         background: BGPAGE,
         minHeight: "100vh",
         fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-        padding: 18,
+        padding: "24px 28px",
       }}
     >
       <div
         style={{
-          background: DGREY,
-          borderRadius: 6,
-          padding: "12px 18px",
+          background: HEADER_BG,
+          borderRadius: 14,
+          padding: "22px 26px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 12,
+          marginBottom: 22,
+          gap: 20,
+          flexWrap: "wrap",
+          boxShadow: "0 10px 30px rgba(15, 23, 42, 0.18)",
         }}
       >
         <div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <span
               style={{
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: 800,
                 color: WHITE,
-                letterSpacing: -0.5,
+                letterSpacing: -0.6,
               }}
             >
               AI Risk Intelligence Dashboard
             </span>
-            {/* <span style={{ fontSize: 11, color: MGREY, fontWeight: 400 }}>
-              Risk Management
-            </span> */}
           </div>
 
           <div
             style={{
               display: "inline-block",
-              background: "#3D566E",
-              borderRadius: 3,
-              padding: "2px 10px",
-              marginTop: 5,
+              background: HEADER_TAG,
+              borderRadius: 999,
+              padding: "5px 12px",
+              marginTop: 8,
+              border: "1px solid rgba(255,255,255,0.08)",
             }}
           >
             <span
               style={{
-                fontSize: 7.5,
+                fontSize: 8,
                 fontWeight: 700,
-                color: "#E8ECF0",
-                letterSpacing: 1.5,
+                color: "#E2E8F0",
+                letterSpacing: 1.4,
               }}
             >
               OPERATION GHOST-CHECK
@@ -178,7 +216,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           {[
             {
               label: "CATEGORY",
@@ -201,13 +246,24 @@ export default function Dashboard() {
           ].map((f) => (
             <div
               key={f.label}
-              style={{ display: "flex", flexDirection: "column", gap: 2 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+              }}
             >
               <span
                 style={{
-                  fontSize: 7,
+                  fontSize: 8,
                   fontWeight: 700,
-                  color: MGREY,
+                  color: "#CBD5E1",
                   letterSpacing: 0.8,
                 }}
               >
@@ -220,7 +276,13 @@ export default function Dashboard() {
                 style={selectStyle}
               >
                 {f.opts.map((o) => (
-                  <option key={o}>{o}</option>
+                  <option
+                    key={o}
+                    value={o}
+                    style={{ color: "#0F172A", background: "#FFFFFF" }}
+                  >
+                    {o}
+                  </option>
                 ))}
               </select>
             </div>
@@ -228,7 +290,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+      
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gap: 16,
+          marginBottom: 18,
+        }}
+      >
         <KpiCard
           label="TOTAL RISKS"
           value={totalRisks}
@@ -255,36 +326,55 @@ export default function Dashboard() {
         />
       </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.4fr 1fr",
+          gap: 16,
+          marginBottom: 18,
+          alignItems: "start",
+        }}
+      >
         <RiskMatrix risks={filteredRisks} />
         <Top3Risks risks={filteredRisks} />
       </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-        <RiskRanking risks={filteredRisks} />
-        <CategoryDistribution risks={filteredRisks} />
-      </div>
+      <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1.2fr 0.9fr 1fr",
+    gap: 16,
+    marginBottom: 18,
+    alignItems: "start",
+  }}
+>
+  <RiskRanking risks={filteredRisks} onSelectRisk={setSelectedRisk} selectedRisk={selectedRisk} />
+  <CategoryDistribution risks={filteredRisks} />
+  <SelectedRiskPanel risk={selectedRisk} />
+</div>
 
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 18 }}>
         <RiskTable risks={filteredRisks} />
       </div>
 
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 18 }}>
         <TreatmentFramework />
       </div>
 
       <div
         style={{
           borderTop: `1px solid ${MGREY}`,
-          paddingTop: 8,
+          paddingTop: 10,
           display: "flex",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 8,
         }}
       >
-        <span style={{ fontSize: 8, color: GREY }}>
+        <span style={{ fontSize: 8.5, color: GREY }}>
           E-NRG Consulting · Operation Ghost-Check · AI Risk Intelligence
         </span>
-        <span style={{ fontSize: 8, color: GREY }}>
+        <span style={{ fontSize: 8.5, color: GREY }}>
           CONFIDENTIAL — For Executive Use Only
         </span>
       </div>
