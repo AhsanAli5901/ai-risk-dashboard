@@ -9,7 +9,9 @@ import CategoryDistribution from "./components/CategoryDistribution";
 import RiskTable from "./components/RiskTable";
 import TreatmentFramework from "./components/TreatmentFramework";
 import SelectedRiskPanel from "./components/SelectedRiskPanel";
+import { sendRiskEmail } from "./services/sendRiskEmail";
 import Papa from "papaparse";
+import { motion } from "framer-motion";
 
 import {
   DGREY,
@@ -33,43 +35,58 @@ export default function Dashboard() {
   const [threat, setThreat] = useState("All");
 
   const [selectedRisk, setSelectedRisk] = useState(null);
+  const [hoveredRisk, setHoveredRisk] = useState(null);
+  const [alertedRisks, setAlertedRisks] = useState([]);
 
   useEffect(() => {
-  Papa.parse("/data/risks.csv", {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: (result) => {
-      const formatted = result.data
-        .filter((row) => row.ID && row.Name)
-        .map((row) => ({
-          id: row.ID,
-          name: row.Name,
-          category: row.Category,
-          likelihood: Number(row.Likelihood) || 0,
-          impact: Number(row.Impact) || 0,
-          score: Number(row.Score) || 0,
-          priority: row.Priority,
-          owner: row.Owner,
-          threat: row.Threat,
-        }));
+    Papa.parse("/data/risks.csv", {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const formatted = result.data
+          .filter((row) => row.ID && row.Name)
+          .map((row) => ({
+            id: row.ID,
+            name: row.Name,
+            category: row.Category,
+            likelihood: Number(row.Likelihood) || 0,
+            impact: Number(row.Impact) || 0,
+            score: Number(row.Score) || 0,
+            priority: row.Priority,
+            owner: row.Owner,
+            threat: row.Threat,
+          }));
 
-      setRiskData(formatted);
-      setIsLoading(false);
+        setRiskData(formatted);
+        setIsLoading(false);
 
-      if (formatted.length) {
-        setSelectedRisk(formatted[0]);
-      } else {
-        setLoadError("CSV loaded, but no valid rows were found.");
+        if (formatted.length) {
+          setSelectedRisk(formatted[0]);
+        } else {
+          setLoadError("CSV loaded, but no valid rows were found.");
+        }
+      },
+      error: (error) => {
+        console.error("CSV load error:", error);
+        setLoadError("Failed to load CSV data.");
+        setIsLoading(false);
+      },
+    });
+  }, []);
+
+  const handleSelectRisk = async (risk) => {
+    setSelectedRisk(risk);
+
+    if (risk.priority === "Critical" && !alertedRisks.includes(risk.id)) {
+      try {
+        await sendRiskEmail(risk);
+        setAlertedRisks((prev) => [...prev, risk.id]);
+      } catch (error) {
+        console.error("Failed to send critical risk email:", error);
       }
-    },
-    error: (error) => {
-      console.error("CSV load error:", error);
-      setLoadError("Failed to load CSV data.");
-      setIsLoading(false);
-    },
-  });
-}, []);
+    }
+  };
 
   const selectStyle = {
     fontSize: 9,
@@ -93,9 +110,28 @@ export default function Dashboard() {
     const matchesPriority = priority === "All" || risk.priority === priority;
     const matchesCategory = category === "All" || risk.category === category;
     const matchesThreat = threat === "All" || risk.threat === threat;
-
     return matchesPriority && matchesCategory && matchesThreat;
   });
+
+  useEffect(() => {
+    if (!filteredRisks.length) {
+      setSelectedRisk(null);
+      setHoveredRisk(null);
+      return;
+    }
+
+    const stillExists = filteredRisks.some((r) => r.id === selectedRisk?.id);
+    if (!stillExists) {
+      setSelectedRisk(filteredRisks[0]);
+    }
+
+    const hoveredStillExists = filteredRisks.some(
+      (r) => r.id === hoveredRisk?.id,
+    );
+    if (!hoveredStillExists) {
+      setHoveredRisk(null);
+    }
+  }, [filteredRisks, selectedRisk, hoveredRisk]);
 
   const totalRisks = filteredRisks.length;
 
@@ -134,6 +170,28 @@ export default function Dashboard() {
     ...Array.from(new Set(riskData.map((risk) => risk.threat))).sort(),
   ];
 
+  const pageVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.45,
+        ease: "easeOut",
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 18 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: "easeOut" },
+    },
+  };
+
   if (isLoading) {
     return (
       <div style={{ padding: 20, fontFamily: "Segoe UI, sans-serif" }}>
@@ -157,7 +215,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div
+    <motion.div
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
       style={{
         background: BGPAGE,
         minHeight: "100vh",
@@ -165,7 +226,8 @@ export default function Dashboard() {
         padding: "24px 28px",
       }}
     >
-      <div
+      <motion.div
+        variants={cardVariants}
         style={{
           background: HEADER_BG,
           borderRadius: 14,
@@ -246,18 +308,7 @@ export default function Dashboard() {
           ].map((f) => (
             <div
               key={f.label}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 4,
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.08)";
-              }}
+              style={{ display: "flex", flexDirection: "column", gap: 4 }}
             >
               <span
                 style={{
@@ -288,11 +339,10 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      
-
-      <div
+      <motion.div
+        variants={cardVariants}
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
@@ -323,10 +373,13 @@ export default function Dashboard() {
           value={topRisk ? topRisk.id : "-"}
           sub={topRisk ? topRisk.name : "No risk selected"}
           color={RED}
+          urgent={topRisk?.priority === "Critical"}
+          urgentText="Urgent attention"
         />
-      </div>
+      </motion.div>
 
-      <div
+      <motion.div
+        variants={cardVariants}
         style={{
           display: "grid",
           gridTemplateColumns: "1.4fr 1fr",
@@ -335,33 +388,62 @@ export default function Dashboard() {
           alignItems: "start",
         }}
       >
-        <RiskMatrix risks={filteredRisks} />
-        <Top3Risks risks={filteredRisks} />
-      </div>
+        <RiskMatrix
+          risks={filteredRisks}
+          selectedRisk={selectedRisk}
+          hoveredRisk={hoveredRisk}
+          onSelectRisk={handleSelectRisk}
+          onHoverRisk={setHoveredRisk}
+        />
+        <Top3Risks
+          risks={filteredRisks}
+          onSelectRisk={handleSelectRisk}
+          selectedRisk={selectedRisk}
+          hoveredRisk={hoveredRisk}
+          onHoverRisk={setHoveredRisk}
+        />
+      </motion.div>
 
-      <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1.2fr 0.9fr 1fr",
-    gap: 16,
-    marginBottom: 18,
-    alignItems: "start",
-  }}
->
-  <RiskRanking risks={filteredRisks} onSelectRisk={setSelectedRisk} selectedRisk={selectedRisk} />
-  <CategoryDistribution risks={filteredRisks} />
-  <SelectedRiskPanel risk={selectedRisk} />
-</div>
+      <motion.div
+        variants={cardVariants}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.2fr 0.9fr 1fr",
+          gap: 16,
+          marginBottom: 18,
+          alignItems: "start",
+        }}
+      >
+        <RiskRanking
+          risks={filteredRisks}
+          onSelectRisk={handleSelectRisk}
+          selectedRisk={selectedRisk}
+          hoveredRisk={hoveredRisk}
+          onHoverRisk={setHoveredRisk}
+        />
+        <CategoryDistribution risks={filteredRisks} />
+        <SelectedRiskPanel
+          risk={hoveredRisk || selectedRisk}
+          isPreview={!!hoveredRisk}
+        />
+      </motion.div>
 
-      <div style={{ marginBottom: 18 }}>
-        <RiskTable risks={filteredRisks} />
-      </div>
+      <motion.div variants={cardVariants} style={{ marginBottom: 18 }}>
+        <RiskTable
+          risks={filteredRisks}
+          onSelectRisk={handleSelectRisk}
+          selectedRisk={selectedRisk}
+          hoveredRisk={hoveredRisk}
+          onHoverRisk={setHoveredRisk}
+        />
+      </motion.div>
 
-      <div style={{ marginBottom: 18 }}>
+      <motion.div variants={cardVariants} style={{ marginBottom: 18 }}>
         <TreatmentFramework />
-      </div>
+      </motion.div>
 
-      <div
+      <motion.div
+        variants={cardVariants}
         style={{
           borderTop: `1px solid ${MGREY}`,
           paddingTop: 10,
@@ -377,7 +459,7 @@ export default function Dashboard() {
         <span style={{ fontSize: 8.5, color: GREY }}>
           CONFIDENTIAL — For Executive Use Only
         </span>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

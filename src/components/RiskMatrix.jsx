@@ -1,19 +1,27 @@
-import { WHITE, DGREY, GREY, RED, ORANGE } from "../data/dashboardData";
+import { WHITE, DGREY, GREY, priorityColor } from "../data/dashboardData";
 
-export default function RiskMatrix({ risks }) {
+export default function RiskMatrix({
+  risks,
+  selectedRisk,
+  hoveredRisk,
+  onSelectRisk,
+  onHoverRisk,
+}) {
   const zoneColors = [
-    ["#F8FAFC", "#FFF7ED", "#FEF2F2"],
-    ["#FFF7ED", "#FEF3C7", "#FEE2E2"],
-    ["#FEF2F2", "#FDE68A", "#FECACA"],
+    ["#F8FAFC", "#EAF4EC", "#DDEFE3"],
+    ["#FFF8E8", "#FCE7B2", "#F8D77A"],
+    ["#FDECEC", "#F8CACA", "#F2A7A7"],
   ];
 
-  const topMatrixRisks = [...risks]
+  const matrixRisks = [...risks]
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
     .map((risk) => ({
       ...risk,
-      color: risk.priority === "Critical" ? RED : ORANGE,
+      color: priorityColor[risk.priority] || "#94A3B8",
     }));
+
+  const legendRisks = [...matrixRisks].slice(0, 3);
+  const topRisk = matrixRisks.length ? matrixRisks[0] : null;
 
   if (!risks.length) {
     return (
@@ -116,41 +124,52 @@ export default function RiskMatrix({ risks }) {
               )}
             </div>
 
-            {topMatrixRisks.map((r) => {
+            {matrixRisks.map((r) => {
               const x = ((r.impact - 1) / 4) * 100;
               const y = ((5 - r.likelihood) / 4) * 100;
+
+              const isSelected = selectedRisk?.id === r.id;
+              const isHovered = hoveredRisk?.id === r.id;
+              const isTopRisk = topRisk?.id === r.id;
 
               return (
                 <div
                   key={r.id}
+                  onClick={() => onSelectRisk?.(r)}
+                  onMouseEnter={() => onHoverRisk?.(r)}
+                  onMouseLeave={() => onHoverRisk?.(null)}
+                  title={`${r.id} — ${r.name}`}
                   style={{
                     position: "absolute",
                     left: `${x}%`,
                     top: `${y}%`,
-                    transform: "translate(-50%,-50%)",
-                    width: 30,
-                    height: 30,
+                    transform:
+                      isSelected || isHovered
+                        ? "translate(-50%, -50%) scale(1.18)"
+                        : "translate(-50%, -50%) scale(1)",
+                    width: isSelected ? 36 : 30,
+                    height: isSelected ? 36 : 30,
                     borderRadius: "50%",
                     background: r.color,
-                    border: "2px solid white",
+                    border: isSelected
+                      ? "3px solid #0F172A"
+                      : "2px solid white",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 8,
                     fontWeight: 800,
                     color: WHITE,
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.16)",
-                    zIndex: 2,
+                    boxShadow: isSelected
+                      ? "0 8px 20px rgba(15, 23, 42, 0.30)"
+                      : "0 4px 10px rgba(0,0,0,0.16)",
+                    zIndex: isSelected ? 4 : isHovered ? 3 : 2,
                     transition: "all 0.2s ease",
                     cursor: "pointer",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform =
-                      "translate(-50%, -50%) scale(1.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform =
-                      "translate(-50%, -50%) scale(1)";
+                    animation:
+                      isTopRisk && r.priority === "Critical" && !isSelected
+                        ? "matrixTopRiskPulse 1.8s infinite"
+                        : "none",
                   }}
                 >
                   {r.id}
@@ -199,25 +218,49 @@ export default function RiskMatrix({ risks }) {
           gap: 6,
         }}
       >
-        {topMatrixRisks.map((r) => (
-          <div
-            key={r.id}
-            style={{ display: "flex", alignItems: "center", gap: 8 }}
-          >
+        {legendRisks.map((r) => {
+          const isSelected = selectedRisk?.id === r.id;
+          const isHovered = hoveredRisk?.id === r.id;
+
+          return (
             <div
+              key={r.id}
+              onClick={() => onSelectRisk?.(r)}
+              onMouseEnter={() => onHoverRisk?.(r)}
+              onMouseLeave={() => onHoverRisk?.(null)}
               style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: r.color,
-                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+                padding: "6px 8px",
+                borderRadius: 8,
+                background: isSelected
+                  ? "#F8FAFC"
+                  : isHovered
+                    ? "#FAFBFC"
+                    : "transparent",
+                border: isSelected
+                  ? "1px solid #CBD5E1"
+                  : "1px solid transparent",
+                transition: "all 0.2s ease",
               }}
-            />
-            <span style={{ fontSize: 9, color: DGREY }}>
-              <b>{r.id}</b> — {r.name}
-            </span>
-          </div>
-        ))}
+            >
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: r.color,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 9, color: DGREY }}>
+                <b>{r.id}</b> — {r.name}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

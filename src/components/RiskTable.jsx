@@ -1,6 +1,12 @@
 import { WHITE, DGREY, GREY, priorityColor } from "../data/dashboardData";
 
-export default function RiskTable({ risks }) {
+export default function RiskTable({
+  risks,
+  onSelectRisk,
+  selectedRisk,
+  hoveredRisk,
+  onHoverRisk,
+}) {
   return (
     <div
       style={{
@@ -56,73 +62,98 @@ export default function RiskTable({ risks }) {
         </thead>
 
         <tbody>
-          {risks.map((r, i) => (
-            <tr
-              key={`${r.id}-${i}`}
-              style={{
-                background: i % 2 === 0 ? "#FFFFFF" : "#F8FAFC",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#EEF2FF";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background =
-                  i % 2 === 0 ? "#FFFFFF" : "#F8FAFC";
-              }}
-            >
-              <td
-                style={{ padding: "8px 10px", fontWeight: 700, color: DGREY }}
-              >
-                {r.id}
-              </td>
-              <td style={{ padding: "8px 10px", color: DGREY }}>{r.name}</td>
-              <td style={{ padding: "8px 10px", color: GREY }}>{r.category}</td>
-              <td
+          {risks.map((r, i) => {
+            const isSelected = selectedRisk?.id === r.id;
+            const isHovered = hoveredRisk?.id === r.id;
+
+            const baseBackground = i % 2 === 0 ? "#FFFFFF" : "#F8FAFC";
+            const rowBackground = isSelected
+              ? "#EEF2FF"
+              : isHovered
+                ? "#F8FAFC"
+                : baseBackground;
+
+            return (
+              <tr
+                key={`${r.id}-${i}`}
+                onClick={() => onSelectRisk?.(r)}
+                onMouseEnter={() => onHoverRisk?.(r)}
+                onMouseLeave={() => onHoverRisk?.(null)}
                 style={{
-                  padding: "8px 10px",
-                  color: DGREY,
-                  textAlign: "center",
+                  background: rowBackground,
+                  transition: "all 0.2s ease",
+                  cursor: "pointer",
+                  boxShadow: isSelected
+                    ? "inset 3px 0 0 #4F46E5"
+                    : "inset 3px 0 0 transparent",
                 }}
               >
-                {r.likelihood}
-              </td>
-              <td
-                style={{
-                  padding: "8px 10px",
-                  color: DGREY,
-                  textAlign: "center",
-                }}
-              >
-                {r.impact}
-              </td>
-              <td
-                style={{
-                  padding: "8px 10px",
-                  fontWeight: 700,
-                  color: priorityColor[r.priority],
-                  textAlign: "center",
-                }}
-              >
-                {r.score}
-              </td>
-              <td style={{ padding: "8px 10px" }}>
-                <span
+                <td
                   style={{
-                    background: priorityColor[r.priority],
-                    color: WHITE,
-                    borderRadius: 999,
-                    padding: "4px 10px",
-                    fontSize: 8,
+                    padding: "8px 10px",
                     fontWeight: 700,
+                    color: DGREY,
                   }}
                 >
-                  {r.priority}
-                </span>
-              </td>
-              <td style={{ padding: "8px 10px", color: GREY }}>{r.owner}</td>
-            </tr>
-          ))}
+                  {r.id}
+                </td>
+
+                <td style={{ padding: "8px 10px", color: DGREY }}>{r.name}</td>
+
+                <td style={{ padding: "8px 10px", color: GREY }}>
+                  {r.category}
+                </td>
+
+                <td
+                  style={{
+                    padding: "8px 10px",
+                    color: DGREY,
+                    textAlign: "center",
+                  }}
+                >
+                  {r.likelihood}
+                </td>
+
+                <td
+                  style={{
+                    padding: "8px 10px",
+                    color: DGREY,
+                    textAlign: "center",
+                  }}
+                >
+                  {r.impact}
+                </td>
+
+                <td
+                  style={{
+                    padding: "8px 10px",
+                    fontWeight: 700,
+                    color: priorityColor[r.priority] || "#94A3B8",
+                    textAlign: "center",
+                  }}
+                >
+                  {r.score}
+                </td>
+
+                <td style={{ padding: "8px 10px" }}>
+                  <span
+                    style={{
+                      background: priorityColor[r.priority] || "#94A3B8",
+                      color: WHITE,
+                      borderRadius: 999,
+                      padding: "4px 10px",
+                      fontSize: 8,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {r.priority}
+                  </span>
+                </td>
+
+                <td style={{ padding: "8px 10px", color: GREY }}>{r.owner}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
