@@ -8,10 +8,13 @@ export default function RiskMatrix({
   onHoverRisk,
 }) {
   const zoneColors = [
-    ["#F8FAFC", "#EAF4EC", "#DDEFE3"],
-    ["#FFF8E8", "#FCE7B2", "#F8D77A"],
-    ["#FDECEC", "#F8CACA", "#F2A7A7"],
+    ["#F8FAFC", "#EEF6F0", "#E4F1E8", "#D7EADB"],
+    ["#FFF8E8", "#FDEFCB", "#FCE3A8", "#F8D77A"],
+    ["#FDEFD9", "#F9DEB4", "#F5C98B", "#EEB96A"],
+    ["#FDECEC", "#F8CACA", "#F2A7A7", "#E97F7F"],
   ];
+
+  const matrixMax = 4;
 
   const matrixRisks = [...risks]
     .sort((a, b) => b.score - a.score)
@@ -103,16 +106,16 @@ export default function RiskMatrix({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3,1fr)",
-                gridTemplateRows: "repeat(3,1fr)",
+                gridTemplateColumns: "repeat(4,1fr)",
+                gridTemplateRows: "repeat(4,1fr)",
                 height: 170,
                 border: "1px solid #E2E8F0",
                 borderRadius: 12,
                 overflow: "hidden",
               }}
             >
-              {[2, 1, 0].map((row) =>
-                [0, 1, 2].map((col) => (
+              {[3, 2, 1, 0].map((row) =>
+                [0, 1, 2, 3].map((col) => (
                   <div
                     key={`${row}-${col}`}
                     style={{
@@ -125,8 +128,8 @@ export default function RiskMatrix({
             </div>
 
             {matrixRisks.map((r) => {
-              const x = ((r.impact - 1) / 4) * 100;
-              const y = ((5 - r.likelihood) / 4) * 100;
+              const x = ((r.impact - 1) / (matrixMax - 1)) * 100;
+              const y = ((matrixMax - r.likelihood) / (matrixMax - 1)) * 100;
 
               const isSelected = selectedRisk?.id === r.id;
               const isHovered = hoveredRisk?.id === r.id;
@@ -185,7 +188,7 @@ export default function RiskMatrix({
               marginTop: 8,
             }}
           >
-            {["Low", "Medium", "High"].map((l) => (
+            {["Low", "Medium", "High", "Critical"].map((l) => (
               <div
                 key={l}
                 style={{ fontSize: 8.5, color: GREY, textAlign: "center" }}
