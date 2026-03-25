@@ -119,7 +119,7 @@ export default function RiskRanking({
                     left: 0,
                     top: 0,
                     bottom: 0,
-                    width: `${(r.score / 20) * 100}%`,
+                    width: `${(r.score / 16) * 100}%`,
                     background: priorityColor[r.priority] || "#94A3B8",
                     borderRadius: 999,
                     transition: "width 0.6s ease",
