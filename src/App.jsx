@@ -453,12 +453,6 @@ export default function Dashboard() {
           gap: 8,
         }}
       >
-        <span style={{ fontSize: 8.5, color: GREY }}>
-          E-NRG Consulting · Operation Ghost-Check · AI Risk Intelligence
-        </span>
-        <span style={{ fontSize: 8.5, color: GREY }}>
-          CONFIDENTIAL — For Executive Use Only
-        </span>
       </motion.div>
     </motion.div>
   );
